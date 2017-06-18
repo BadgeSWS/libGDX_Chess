@@ -2,8 +2,10 @@ package pieces;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.ChessGame;
+import javafx.scene.paint.Color;
 import screens.GameScreen;
 
 import java.lang.reflect.Array;
@@ -15,6 +17,8 @@ import java.util.List;
  */
 public class Piece {
 
+    private ChessGame game;
+
     private Texture img;
     private String color;
     private String type;
@@ -23,9 +27,11 @@ public class Piece {
     private int x;
     private int y;
     private int numberOfMoves;
+    public static boolean hasToWait;
 
 
-    public Piece(String color, String type, int row, int col) {
+    public Piece(ChessGame game, String color, String type, int row, int col) {
+        this.game = game;
         img = new Texture("1x1.png");
         this.color = color;
         this.type = type;
@@ -34,6 +40,7 @@ public class Piece {
         this.x = colToX(col);
         this.y = rowToY(row);
         this.numberOfMoves = 0;
+        this.hasToWait = false;
         if(type.equals("KING"))
             if(getColor().equals("BLACK"))
                 img = new Texture("pieces/blackKing.png");
@@ -247,6 +254,9 @@ public class Piece {
         if(rowMove == 2 && numberOfMoves != 0)
             return false;
 
+        if(rowMove > 2)
+            return false;
+
         boolean isAPeiceInThePath = false;
 
         if(colMove == 0) {
@@ -291,6 +301,9 @@ public class Piece {
         if(this.row == row && this.col == col)
             return false;
 
+        if(hasToWait)
+            return false;
+
         if(type.equals("BISHOP")) {
             return canBishopMove(row, col);
         } else if (type.equals("ROOK")){
@@ -319,6 +332,28 @@ public class Piece {
     public void centerOnGrid(){
         setX(colToX(col));
         setY(rowToY(row));
+    }
+
+    public void drawPicker(){
+        if(getType().equals("PAWN")) {
+            game.getBatch().begin();
+            if (getColor().equals("BLACK") && getRow() == 7) {
+                hasToWait = true;
+                game.getBatch().draw(new Texture("board.png"), (90) / 2, (ChessGame.HEIGHT - (int) (90 * 1.5)) / 2, 720 - 90, (int) (90 * 1.5));
+                game.getBatch().draw(new Texture("pieces/blackQueen.png"), (ChessGame.WIDTH - 90 * 4) / 2 + 90 * 0, (ChessGame.HEIGHT - 90) / 2, 90, 90);
+                game.getBatch().draw(new Texture("pieces/blackRook.png"), (ChessGame.WIDTH - 90 * 4) / 2 + 90 * 1, (ChessGame.HEIGHT - 90) / 2, 90, 90);
+                game.getBatch().draw(new Texture("pieces/blackBishop.png"), (ChessGame.WIDTH - 90 * 4) / 2 + 90 * 2, (ChessGame.HEIGHT - 90) / 2, 90, 90);
+                game.getBatch().draw(new Texture("pieces/blackKnight.png"), (ChessGame.WIDTH - 90 * 4) / 2 + 90 * 3, (ChessGame.HEIGHT - 90) / 2, 90, 90);
+            } else if(getColor().equals("WHITE") && getRow() == 0){
+                hasToWait = true;
+                game.getBatch().draw(new Texture("board.png"), (90) / 2, (ChessGame.HEIGHT - (int) (90 * 1.5)) / 2, 720 - 90, (int) (90 * 1.5));
+                game.getBatch().draw(new Texture("pieces/whiteQueen.png"), (ChessGame.WIDTH - 90 * 4) / 2 + 90 * 0, (ChessGame.HEIGHT - 90) / 2, 90, 90);
+                game.getBatch().draw(new Texture("pieces/whiteRook.png"), (ChessGame.WIDTH - 90 * 4) / 2 + 90 * 1, (ChessGame.HEIGHT - 90) / 2, 90, 90);
+                game.getBatch().draw(new Texture("pieces/whiteBishop.png"), (ChessGame.WIDTH - 90 * 4) / 2 + 90 * 2, (ChessGame.HEIGHT - 90) / 2, 90, 90);
+                game.getBatch().draw(new Texture("pieces/whiteKnight.png"), (ChessGame.WIDTH - 90 * 4) / 2 + 90 * 3, (ChessGame.HEIGHT - 90) / 2, 90, 90);
+            }
+            game.getBatch().end();
+        }
     }
 
     public Texture getImg() {

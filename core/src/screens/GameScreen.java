@@ -35,27 +35,27 @@ public class GameScreen implements Screen{
     public void show() {
         elementMoved = -1;
         board  = new Texture("board.png");
-        pieces.add(new Piece("BLACK", "ROOK", 0, 0));
-        pieces.add(new Piece("BLACK", "KNIGHT", 0, 1));
-        pieces.add(new Piece("BLACK", "BISHOP", 0, 2));
-        pieces.add(new Piece("BLACK", "QUEEN", 0, 3));
-        pieces.add(new Piece("BLACK", "KING", 0, 4));
-        pieces.add(new Piece("BLACK", "BISHOP", 0, 5));
-        pieces.add(new Piece("BLACK", "KNIGHT", 0, 6));
-        pieces.add(new Piece("BLACK", "ROOK", 0, 7));
+        pieces.add(new Piece(game, "BLACK", "ROOK", 0, 0));
+        pieces.add(new Piece(game, "BLACK", "KNIGHT", 0, 1));
+        pieces.add(new Piece(game, "BLACK", "BISHOP", 0, 2));
+        pieces.add(new Piece(game, "BLACK", "QUEEN", 0, 3));
+        pieces.add(new Piece(game, "BLACK", "KING", 0, 4));
+        pieces.add(new Piece(game, "BLACK", "BISHOP", 0, 5));
+        pieces.add(new Piece(game, "BLACK", "KNIGHT", 0, 6));
+        pieces.add(new Piece(game, "BLACK", "ROOK", 0, 7));
         for(int col = 0; col < 8; col++)
-            pieces.add(new Piece("BLACK", "PAWN", 1, col));
+            pieces.add(new Piece(game, "BLACK", "PAWN", 1, col));
 
-        pieces.add(new Piece("WHITE", "ROOK", 7, 0));
-        pieces.add(new Piece("WHITE", "KNIGHT", 7, 1));
-        pieces.add(new Piece("WHITE", "BISHOP", 7, 2));
-        pieces.add(new Piece("WHITE", "QUEEN", 7, 3));
-        pieces.add(new Piece("WHITE", "KING", 7, 4));
-        pieces.add(new Piece("WHITE", "BISHOP", 7, 5));
-        pieces.add(new Piece("WHITE", "KNIGHT", 7, 6));
-        pieces.add(new Piece("WHITE", "ROOK", 7, 7));
+        pieces.add(new Piece(game, "WHITE", "ROOK", 7, 0));
+        pieces.add(new Piece(game, "WHITE", "KNIGHT", 7, 1));
+        pieces.add(new Piece(game, "WHITE", "BISHOP", 7, 2));
+        pieces.add(new Piece(game, "WHITE", "QUEEN", 7, 3));
+        pieces.add(new Piece(game, "WHITE", "KING", 7, 4));
+        pieces.add(new Piece(game, "WHITE", "BISHOP", 7, 5));
+        pieces.add(new Piece(game, "WHITE", "KNIGHT", 7, 6));
+        pieces.add(new Piece(game, "WHITE", "ROOK", 7, 7));
         for(int col = 0; col < 8; col++)
-            pieces.add(new Piece("WHITE", "PAWN", 6, col));
+            pieces.add(new Piece(game, "WHITE", "PAWN", 6, col));
     }
 
     @Override
@@ -101,6 +101,10 @@ public class GameScreen implements Screen{
             game.getBatch().draw(piece.getImg(), piece.getX(), piece.getY(), 90,90);
         }
         game.getBatch().end();
+
+        for(Piece p : pieces)
+            p.drawPicker();
+
     }
 
     @Override
