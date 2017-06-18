@@ -22,6 +22,7 @@ public class Piece {
     private int col;
     private int x;
     private int y;
+    private int numberOfMoves;
 
 
     public Piece(String color, String type, int row, int col) {
@@ -32,11 +33,12 @@ public class Piece {
         this.col = col;
         this.x = colToX(col);
         this.y = rowToY(row);
+        this.numberOfMoves = 0;
         if(type.equals("KING"))
             if(getColor().equals("BLACK"))
-                img = new Texture("pieces/blackKnight.png");
+                img = new Texture("pieces/blackKing.png");
             else
-                img = new Texture("pieces/whiteKnight.png");
+                img = new Texture("pieces/whiteKing.png");
         else if(type.equals("QUEEN"))
             if(getColor().equals("BLACK"))
                 img = new Texture("pieces/blackQueen.png");
@@ -64,7 +66,7 @@ public class Piece {
                 img = new Texture("pieces/whiteKnight.png");
     }
 
-    public boolean canBishopMove(int row, int col){
+    private boolean canBishopMove(int row, int col){
         boolean isDiagonal;
         int diffCol = Math.abs(this.row - row);
         int diffEow = Math.abs(this.col - col);
@@ -102,7 +104,7 @@ public class Piece {
                     }
                 }
             }
-            if(pieceToRemove != -1)
+            if(pieceToRemove != -1 &&(isDiagonal && !isAPeiceInThePath))
                 GameScreen.getPieces().remove(pieceToRemove);
             pieceToRemove = -1;
 
@@ -111,11 +113,196 @@ public class Piece {
         return isDiagonal && !isAPeiceInThePath;
     }
 
-    public boolean canMove(int row, int col){
+    private boolean canRookMove(int row, int col){
+        boolean isStraightLine = this.row == row || this.col == col;
+        boolean isAPeiceInThePath = false;
+
+        if(isStraightLine) {
+            boolean isMovingCol = this.row == row;
+
+            int colMod = 0;
+            int rowMod = 0;
+
+            if(isMovingCol)
+                colMod = this.col<col?1:-1;
+            else
+                rowMod = this.row<row?1:-1;
+
+            System.out.println("START COORDS: " + new Vector2(this.col, this.row));
+            System.out.println("END COORDS: " + new Vector2(col, row));
+            System.out.println("COL MOD: " + colMod);
+            System.out.println("ROW MOD: " + rowMod);
+
+
+            Vector2 vec2ModOff = new Vector2(0, 0);
+            List<Vector2> coords = new ArrayList<Vector2>();
+            do{
+                coords.add(new Vector2(this.col+vec2ModOff.x,this.row+vec2ModOff.y));
+                vec2ModOff.x += colMod;
+                vec2ModOff.y += rowMod;
+            } while(coords.get(coords.size()-1).x != col || coords.get(coords.size()-1).y != row);
+            System.out.println(coords);
+
+            int pieceToRemove = -1;
+            for(int i = 1; i < coords.size(); i++){
+                Vector2 coord = coords.get(i);
+                for(int x = 0; x < GameScreen.getPieces().size(); x++){
+                    Piece p = GameScreen.getPieces().get(x);
+                    if (p.getCol() == coord.x && p.getRow() == coord.y) {
+                        if(i == coords.size()-1){
+                            if(!p.getColor().equals(getColor())) {
+                                pieceToRemove = x;
+                            } else
+                                isAPeiceInThePath = true;
+                        } else
+                            isAPeiceInThePath = true;
+                    }
+                }
+            }
+
+            if(pieceToRemove != -1 && (isStraightLine && !isAPeiceInThePath))
+                GameScreen.getPieces().remove(pieceToRemove);
+            pieceToRemove = -1;
+
+        }
+
+        return isStraightLine && !isAPeiceInThePath;
+    }
+
+    private boolean canQueenMove(int row, int col){
+        return canBishopMove(row, col)
+                || canRookMove(row, col);
+    }
+
+    private boolean canKnightMove(int row, int col){
+        int rowDist = Math.abs(this.row-row)+1;
+        int colDist = Math.abs(this.col-col)+1;
+
+        System.out.println(rowDist + ", " + colDist);
+
+        boolean isCorrectMovement = (rowDist == 2 && colDist == 3) || (rowDist == 3 && colDist == 2);
+        boolean onOwnPiece = false;
+
+        int pieceToRemove = -1;
+        if(isCorrectMovement){
+            for(int x = 0; x < GameScreen.getPieces().size(); x++) {
+                Piece p = GameScreen.getPieces().get(x);
+                if(p.getRow() == row && p.getCol() == col){
+                    if(p.getColor().equals(getColor()))
+                        onOwnPiece = true;
+                    pieceToRemove = x;
+                }
+            }
+        }
+
+        if(pieceToRemove != -1 && (isCorrectMovement && !onOwnPiece))
+            GameScreen.getPieces().remove(pieceToRemove);
+        pieceToRemove = -1;
+
+        return isCorrectMovement && !onOwnPiece;
+    }
+
+    private boolean canKingMove(int row, int col){
+        int rowDist = Math.abs(this.row - row);
+        int colDist = Math.abs(this.col - col);
+
+        boolean validSpot = rowDist <= 1 && colDist <= 1;
+
+        boolean isOwnPiece = false;
+
+        int pieceToRemove = -1;
+        if(validSpot){
+            for(int x = 0; x < GameScreen.getPieces().size(); x++) {
+                Piece p = GameScreen.getPieces().get(x);
+                if(p.getRow() == row && p.getCol() == col){
+                    if(p.getColor().equals(getColor()))
+                        isOwnPiece = true;
+                    pieceToRemove = x;
+                }
+            }
+        }
+
+        if(pieceToRemove != -1 && (validSpot && !isOwnPiece))
+            GameScreen.getPieces().remove(pieceToRemove);
+        pieceToRemove = -1;
+
+        return validSpot && !isOwnPiece;
+    }
+
+    private boolean canPawnMove(int row, int col){
+        int rowMove = Math.abs(row - this.row);
+        int colMove = Math.abs(col - this.col);
+
+        if(getColor().equals("WHITE")){
+            if(this.row-row < 0)
+                return false;
+        } else {
+            if(this.row-row > 0)
+                return false;
+        }
+
+        if(colMove > 1 || (colMove == 1 && rowMove != 1))
+            return false;
+
+        if(rowMove == 2 && numberOfMoves != 0)
+            return false;
+
+        boolean isAPeiceInThePath = false;
+
+        if(colMove == 0) {
+            List<Vector2> coords = new ArrayList<Vector2>();
+            if(getColor().equals("BLACK")) {
+                for (int i = 1; i < rowMove + 1; i++) {
+                    coords.add(new Vector2(col, this.row + i));
+                }
+            } else {
+                for (int i = 1; i < rowMove + 1; i++) {
+                    coords.add(new Vector2(col, this.row - i));
+                }
+            }
+
+            for(Vector2 coord : coords){
+                for(Piece p : GameScreen.getPieces()){
+                    if(coord.x == p.getCol() && coord.y == p.getRow()){
+                        isAPeiceInThePath = true;
+                    }
+                }
+            }
+        }
+
+        if(colMove == 1 && rowMove == 1){
+            for(int i = 0; i < GameScreen.getPieces().size(); i++){
+                Piece p = GameScreen.getPieces().get(i);
+                if(p.getCol() == col && p.getRow() == row && !p.getColor().equals(getColor())) {
+                    GameScreen.getPieces().remove(i);
+                    return true;
+                }
+            }
+        }
+
+        if(colMove == 1)
+            return false;
+
+        return !isAPeiceInThePath;
+    }
+
+    private boolean canMove(int row, int col){
+
+        if(this.row == row && this.col == col)
+            return false;
+
         if(type.equals("BISHOP")) {
             return canBishopMove(row, col);
+        } else if (type.equals("ROOK")){
+            return canRookMove(row, col);
+        } else if (type.equals("QUEEN")){
+            return canQueenMove(row, col);
+        } else if (type.equals("KNIGHT")){
+            return canKnightMove(row, col);
+        } else if (type.equals("KING")){
+            return canKingMove(row, col);
         } else if (type.equals("PAWN")){
-            return true;
+            return canPawnMove(row, col);
         }
         return false;
     }
@@ -124,6 +311,7 @@ public class Piece {
         if(canMove(row,col)) {
             this.row = row;
             this.col = col;
+            this.numberOfMoves++;
         }
         centerOnGrid();
     }
