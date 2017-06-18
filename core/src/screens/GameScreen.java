@@ -7,19 +7,18 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.game.ChessGame;
+import pieces.Piece;
 
 /**
  * Created by jacks on 2017-06-16.
  */
 public class GameScreen implements Screen{
 
-    public static final int SPEED = 120;
+    public static final int SPEED = 400;
 
-
-    Texture img;
-    int x = 0, y = 0;
-
+    Texture board;
     ChessGame game;
+    Piece[][] pieces = new Piece[8][8];
 
     public GameScreen(ChessGame game){
         this.game = game;
@@ -27,26 +26,19 @@ public class GameScreen implements Screen{
 
     @Override
     public void show() {
-        img  = new Texture("badlogic.jpg");
+        board  = new Texture("board.png");
     }
 
     @Override
     public void render(float delta) {
-        if(Gdx.input.isKeyPressed(Input.Keys.UP)){
-            y += SPEED * delta;
-        } else if(Gdx.input.isKeyPressed(Input.Keys.DOWN)){
-            y -= SPEED * delta;
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
-            x += SPEED * delta;
-        } else if(Gdx.input.isKeyPressed(Input.Keys.LEFT)){
-            x -= SPEED * delta;
-        }
-        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        if(Gdx.input.isTouched())
+            System.out.println(Gdx.input.getX()/90 + ", " + Gdx.input.getY()/90);
+
         game.getBatch().begin();
-        game.getBatch().draw(img, x, y);
+        game.getBatch().draw(board, 0, 0, ChessGame.WIDTH, ChessGame.HEIGHT);
         game.getBatch().end();
     }
 

@@ -51,6 +51,10 @@ public class MainMenuScreen implements Screen{
           int x = ChessGame.WIDTH / 2 - PLAY_BUTTON_WIDTH/2;
           if(Gdx.input.getX() < x + PLAY_BUTTON_WIDTH && Gdx.input.getX() > x && ChessGame.HEIGHT - Gdx.input.getY() < PLAY_BUTTON_Y + PLAY_BUTTON_HEIGHT && ChessGame.HEIGHT - Gdx.input.getY() > PLAY_BUTTON_Y ){
               game.getBatch().draw(playButtonActive, ChessGame.WIDTH / 2 - PLAY_BUTTON_WIDTH/2, PLAY_BUTTON_Y, PLAY_BUTTON_WIDTH, PLAY_BUTTON_HEIGHT);
+              if(Gdx.input.isTouched()){
+                  dispose();
+                  game.setScreen(new GameScreen(game));
+              }
           } else {
               game.getBatch().draw(playButtonInactive, ChessGame.WIDTH / 2 - PLAY_BUTTON_WIDTH/2, PLAY_BUTTON_Y, PLAY_BUTTON_WIDTH, PLAY_BUTTON_HEIGHT);
           }
@@ -59,6 +63,9 @@ public class MainMenuScreen implements Screen{
             int x = ChessGame.WIDTH / 2 - EXIT_BUTTON_WIDTH/2;
             if(Gdx.input.getX() < x + EXIT_BUTTON_WIDTH && Gdx.input.getX() > x && ChessGame.HEIGHT - Gdx.input.getY() < EXIT_BUTTON_Y + EXIT_BUTTON_HEIGHT && ChessGame.HEIGHT - Gdx.input.getY() > EXIT_BUTTON_Y ){
                 game.getBatch().draw(exitButtonActive, ChessGame.WIDTH / 2 - EXIT_BUTTON_WIDTH/2, EXIT_BUTTON_Y, EXIT_BUTTON_WIDTH, EXIT_BUTTON_HEIGHT);
+                if(Gdx.input.isTouched()){
+                    Gdx.app.exit();
+                }
             } else {
                 game.getBatch().draw(exitButtonInactive, ChessGame.WIDTH / 2 - EXIT_BUTTON_WIDTH/2, EXIT_BUTTON_Y, EXIT_BUTTON_WIDTH, EXIT_BUTTON_HEIGHT);
             }
