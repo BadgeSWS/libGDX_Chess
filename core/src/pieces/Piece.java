@@ -1,6 +1,7 @@
 package pieces;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
@@ -135,12 +136,6 @@ public class Piece {
             else
                 rowMod = this.row<row?1:-1;
 
-            System.out.println("START COORDS: " + new Vector2(this.col, this.row));
-            System.out.println("END COORDS: " + new Vector2(col, row));
-            System.out.println("COL MOD: " + colMod);
-            System.out.println("ROW MOD: " + rowMod);
-
-
             Vector2 vec2ModOff = new Vector2(0, 0);
             List<Vector2> coords = new ArrayList<Vector2>();
             do{
@@ -148,7 +143,6 @@ public class Piece {
                 vec2ModOff.x += colMod;
                 vec2ModOff.y += rowMod;
             } while(coords.get(coords.size()-1).x != col || coords.get(coords.size()-1).y != row);
-            System.out.println(coords);
 
             int pieceToRemove = -1;
             for(int i = 1; i < coords.size(); i++){
@@ -184,8 +178,6 @@ public class Piece {
     private boolean canKnightMove(int row, int col){
         int rowDist = Math.abs(this.row-row)+1;
         int colDist = Math.abs(this.col-col)+1;
-
-        System.out.println(rowDist + ", " + colDist);
 
         boolean isCorrectMovement = (rowDist == 2 && colDist == 3) || (rowDist == 3 && colDist == 2);
         boolean onOwnPiece = false;
@@ -232,6 +224,75 @@ public class Piece {
         if(pieceToRemove != -1 && (validSpot && !isOwnPiece))
             GameScreen.getPieces().remove(pieceToRemove);
         pieceToRemove = -1;
+
+
+        if(getColor().equals("WHITE") && this.col == 4 && this.row == 7 && col == 6 && row == 7 && numberOfMoves == 0){
+            Vector2 spotToCheck1 = new Vector2(5,7);
+            Vector2 spotToCheck2 = new Vector2(6,7);
+            for(Piece p : GameScreen.getPieces()){
+                if((p.getRow() == spotToCheck1.y && p.getCol() == spotToCheck1.x) || (p.getRow() == spotToCheck2.y && p.getCol() == spotToCheck2.x)){
+                    return false;
+                }
+            }
+            for(Piece p : GameScreen.getPieces()){
+                if(p.getRow() == 7 && p.getCol() == 7 && p.getType().equals("ROOK") && p.numberOfMoves == 0){
+                    p.setCol(5);
+                    p.setRow(7);
+                    p.centerOnGrid();
+                    return true;
+                }
+            }
+            return false;
+        } else if (getColor().equals("WHITE") && this.col == 4 && this.row == 7 && col == 2 && row == 7 && numberOfMoves == 0){
+            Vector2 spotToCheck1 = new Vector2(3,7);
+            Vector2 spotToCheck2 = new Vector2(2,7);
+            for(Piece p : GameScreen.getPieces()){
+                if((p.getRow() == spotToCheck1.y && p.getCol() == spotToCheck1.x) || (p.getRow() == spotToCheck2.y && p.getCol() == spotToCheck2.x)){
+                    return false;
+                }
+            }
+            for(Piece p : GameScreen.getPieces()){
+                if(p.getRow() == 7 && p.getCol() == 0 && p.getType().equals("ROOK") && p.numberOfMoves == 0){
+                    p.setCol(3);
+                    p.setRow(7);
+                    p.centerOnGrid();
+                    return true;
+                }
+            }
+        } else if(getColor().equals("BLACK") && this.col == 4 && this.row == 0 && col == 6 && row == 0 && numberOfMoves == 0){
+            Vector2 spotToCheck1 = new Vector2(5,0);
+            Vector2 spotToCheck2 = new Vector2(6,0);
+            for(Piece p : GameScreen.getPieces()){
+                if((p.getRow() == spotToCheck1.y && p.getCol() == spotToCheck1.x) || (p.getRow() == spotToCheck2.y && p.getCol() == spotToCheck2.x)){
+                    return false;
+                }
+            }
+            for(Piece p : GameScreen.getPieces()){
+                if(p.getRow() == 0 && p.getCol() == 7 && p.getType().equals("ROOK") && p.numberOfMoves == 0){
+                    p.setCol(5);
+                    p.setRow(0);
+                    p.centerOnGrid();
+                    return true;
+                }
+            }
+            return false;
+        } else if (getColor().equals("BLACK") && this.col == 4 && this.row == 0 && col == 2 && row == 0 && numberOfMoves == 0){
+            Vector2 spotToCheck1 = new Vector2(3,0);
+            Vector2 spotToCheck2 = new Vector2(2,0);
+            for(Piece p : GameScreen.getPieces()){
+                if((p.getRow() == spotToCheck1.y && p.getCol() == spotToCheck1.x) || (p.getRow() == spotToCheck2.y && p.getCol() == spotToCheck2.x)){
+                    return false;
+                }
+            }
+            for(Piece p : GameScreen.getPieces()){
+                if(p.getRow() == 0 && p.getCol() == 0 && p.getType().equals("ROOK") && p.numberOfMoves == 0){
+                    p.setCol(3);
+                    p.setRow(0);
+                    p.centerOnGrid();
+                    return true;
+                }
+            }
+        }
 
         return validSpot && !isOwnPiece;
     }
@@ -298,6 +359,9 @@ public class Piece {
 
     private boolean canMove(int row, int col){
 
+        if(row < 0 || row > 7 || col < 0 || col > 7)
+            return false;
+
         if(this.row == row && this.col == col)
             return false;
 
@@ -336,23 +400,62 @@ public class Piece {
 
     public void drawPicker(){
         if(getType().equals("PAWN")) {
-            game.getBatch().begin();
-            if (getColor().equals("BLACK") && getRow() == 7) {
-                hasToWait = true;
-                game.getBatch().draw(new Texture("board.png"), (90) / 2, (ChessGame.HEIGHT - (int) (90 * 1.5)) / 2, 720 - 90, (int) (90 * 1.5));
-                game.getBatch().draw(new Texture("pieces/blackQueen.png"), (ChessGame.WIDTH - 90 * 4) / 2 + 90 * 0, (ChessGame.HEIGHT - 90) / 2, 90, 90);
-                game.getBatch().draw(new Texture("pieces/blackRook.png"), (ChessGame.WIDTH - 90 * 4) / 2 + 90 * 1, (ChessGame.HEIGHT - 90) / 2, 90, 90);
-                game.getBatch().draw(new Texture("pieces/blackBishop.png"), (ChessGame.WIDTH - 90 * 4) / 2 + 90 * 2, (ChessGame.HEIGHT - 90) / 2, 90, 90);
-                game.getBatch().draw(new Texture("pieces/blackKnight.png"), (ChessGame.WIDTH - 90 * 4) / 2 + 90 * 3, (ChessGame.HEIGHT - 90) / 2, 90, 90);
-            } else if(getColor().equals("WHITE") && getRow() == 0){
-                hasToWait = true;
-                game.getBatch().draw(new Texture("board.png"), (90) / 2, (ChessGame.HEIGHT - (int) (90 * 1.5)) / 2, 720 - 90, (int) (90 * 1.5));
-                game.getBatch().draw(new Texture("pieces/whiteQueen.png"), (ChessGame.WIDTH - 90 * 4) / 2 + 90 * 0, (ChessGame.HEIGHT - 90) / 2, 90, 90);
-                game.getBatch().draw(new Texture("pieces/whiteRook.png"), (ChessGame.WIDTH - 90 * 4) / 2 + 90 * 1, (ChessGame.HEIGHT - 90) / 2, 90, 90);
-                game.getBatch().draw(new Texture("pieces/whiteBishop.png"), (ChessGame.WIDTH - 90 * 4) / 2 + 90 * 2, (ChessGame.HEIGHT - 90) / 2, 90, 90);
-                game.getBatch().draw(new Texture("pieces/whiteKnight.png"), (ChessGame.WIDTH - 90 * 4) / 2 + 90 * 3, (ChessGame.HEIGHT - 90) / 2, 90, 90);
+            if(getColor().equals("BLACK") && getRow() == 7 || getColor().equals("WHITE") && getRow() == 0) {
+                game.getBatch().begin();
+
+                Vector2 queen = new Vector2((ChessGame.WIDTH - 90 * 4) / 2 + 90 * 0, (ChessGame.HEIGHT - 90) / 2);
+                Vector2 rook = new Vector2((ChessGame.WIDTH - 90 * 4) / 2 + 90 * 1, (ChessGame.HEIGHT - 90) / 2);
+                Vector2 bishop = new Vector2((ChessGame.WIDTH - 90 * 4) / 2 + 90 * 2, (ChessGame.HEIGHT - 90) / 2);
+                Vector2 knight = new Vector2((ChessGame.WIDTH - 90 * 4) / 2 + 90 * 3, (ChessGame.HEIGHT - 90) / 2);
+
+                if (getColor().equals("BLACK") && getRow() == 7) {
+                    hasToWait = true;
+                    game.getBatch().draw(new Texture("board.png"), (90) / 2, (ChessGame.HEIGHT - (int) (90 * 1.5)) / 2, 720 - 90, (int) (90 * 1.5));
+                    game.getBatch().draw(new Texture("pieces/blackQueen.png"), queen.x, queen.y, 90, 90);
+                    game.getBatch().draw(new Texture("pieces/blackRook.png"), rook.x, rook.y, 90, 90);
+                    game.getBatch().draw(new Texture("pieces/blackBishop.png"), bishop.x, bishop.y, 90, 90);
+                    game.getBatch().draw(new Texture("pieces/blackKnight.png"), knight.x, knight.y, 90, 90);
+                } else if (getColor().equals("WHITE") && getRow() == 0) {
+                    hasToWait = true;
+                    game.getBatch().draw(new Texture("board.png"), (90) / 2, (ChessGame.HEIGHT - (int) (90 * 1.5)) / 2, 720 - 90, (int) (90 * 1.5));
+                    game.getBatch().draw(new Texture("pieces/whiteQueen.png"), queen.x, queen.y, 90, 90);
+                    game.getBatch().draw(new Texture("pieces/whiteRook.png"), rook.x, rook.y, 90, 90);
+                    game.getBatch().draw(new Texture("pieces/whiteBishop.png"), bishop.x, bishop.y, 90, 90);
+                    game.getBatch().draw(new Texture("pieces/whiteKnight.png"), knight.x, knight.y, 90, 90);
+                }
+                int mouseX = Gdx.input.getX();
+                int mouseY = ChessGame.HEIGHT - Gdx.input.getY();
+                if (mouseX > queen.x && mouseX < queen.x + 90 && mouseY > queen.y && mouseY  < queen.y + 90){
+                    game.getBatch().draw(new Texture("pieces/selectedQueen.png"), queen.x, queen.y, 90, 90);
+                    if(Gdx.input.isTouched()) {
+                        setType("QUEEN");
+                        hasToWait = false;
+                    }
+                }
+                if (mouseX > rook.x && mouseX < rook.x + 90 && mouseY > rook.y && mouseY  < rook.y + 90){
+                    game.getBatch().draw(new Texture("pieces/selectedRook.png"), rook.x, rook.y, 90, 90);
+                    if(Gdx.input.isTouched()){
+                        setType("ROOK");
+                        hasToWait = false;
+                    }
+                }
+                if (mouseX > bishop.x && mouseX < bishop.x + 90 && mouseY > bishop.y && mouseY  < bishop.y + 90){
+                    game.getBatch().draw(new Texture("pieces/selectedBishop.png"), bishop.x, bishop.y, 90, 90);
+                    if(Gdx.input.isTouched()){
+                        setType("BISHOP");
+                        hasToWait = false;
+                    }
+                }
+                if (mouseX > knight.x && mouseX < knight.x + 90 && mouseY > knight.y && mouseY  < knight.y + 90){
+                    game.getBatch().draw(new Texture("pieces/selectedKnight.png"), knight.x, knight.y, 90, 90);
+                    if(Gdx.input.isTouched()){
+                        setType("KNIGHT");
+                        hasToWait = false;
+                    }
+                }
+
+                game.getBatch().end();
             }
-            game.getBatch().end();
         }
     }
 
@@ -382,6 +485,40 @@ public class Piece {
 
     public int getY() {
         return y;
+    }
+
+    public void setType(String type){
+        this.type = type;
+        if(type.equals("KING"))
+            if(getColor().equals("BLACK"))
+                img = new Texture("pieces/blackKing.png");
+            else
+                img = new Texture("pieces/whiteKing.png");
+        else if(type.equals("QUEEN"))
+            if(getColor().equals("BLACK"))
+                img = new Texture("pieces/blackQueen.png");
+            else
+                img = new Texture("pieces/whiteQueen.png");
+        else if(type.equals("PAWN"))
+            if(getColor().equals("BLACK"))
+                img = new Texture("pieces/blackPawn.png");
+            else
+                img = new Texture("pieces/whitePawn.png");
+        else if(type.equals("BISHOP"))
+            if(getColor().equals("BLACK"))
+                img = new Texture("pieces/blackBishop.png");
+            else
+                img = new Texture("pieces/whiteBishop.png");
+        else if(type.equals("ROOK"))
+            if(getColor().equals("BLACK"))
+                img = new Texture("pieces/blackRook.png");
+            else
+                img = new Texture("pieces/whiteRook.png");
+        else if(type.equals("KNIGHT"))
+            if(getColor().equals("BLACK"))
+                img = new Texture("pieces/blackKnight.png");
+            else
+                img = new Texture("pieces/whiteKnight.png");
     }
 
     public void setCol(int col){
