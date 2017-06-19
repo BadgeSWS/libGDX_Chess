@@ -30,6 +30,8 @@ public class Piece {
     private int numberOfMoves;
     public static boolean hasToWait;
 
+    private static boolean isWhiteTurn = true;
+
 
     public Piece(ChessGame game, String color, String type, int row, int col) {
         this.game = game;
@@ -359,6 +361,12 @@ public class Piece {
 
     private boolean canMove(int row, int col){
 
+        if(getColor().equals("WHITE") && !isIsWhiteTurn())
+            return false;
+
+        if(getColor().equals("BLACK") && isIsWhiteTurn())
+            return false;
+
         if(row < 0 || row > 7 || col < 0 || col > 7)
             return false;
 
@@ -389,6 +397,7 @@ public class Piece {
             this.row = row;
             this.col = col;
             this.numberOfMoves++;
+            setIsWhiteTurn(!isIsWhiteTurn());
         }
         centerOnGrid();
     }
@@ -543,5 +552,13 @@ public class Piece {
 
     public int colToX(int col){
         return col*90;
+    }
+
+    public static boolean isIsWhiteTurn() {
+        return isWhiteTurn;
+    }
+
+    public static void setIsWhiteTurn(boolean isWhiteTurn) {
+        Piece.isWhiteTurn = isWhiteTurn;
     }
 }

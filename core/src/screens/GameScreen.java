@@ -26,6 +26,7 @@ public class GameScreen implements Screen{
     private static List<Piece> pieces = new ArrayList<Piece>();
     private int elementMoved;
     private int oldX, oldY;
+    private int kingCount = 0;
 
     public GameScreen(ChessGame game){
         this.game = game;
@@ -56,6 +57,9 @@ public class GameScreen implements Screen{
         pieces.add(new Piece(game, "WHITE", "ROOK", 7, 7));
         for(int col = 0; col < 8; col++)
             pieces.add(new Piece(game, "WHITE", "PAWN", 6, col));
+
+        for(Piece p : pieces)
+            p.setIsWhiteTurn(true);
     }
 
     @Override
@@ -102,8 +106,16 @@ public class GameScreen implements Screen{
         }
         game.getBatch().end();
 
-        for(Piece p : pieces)
+        for(Piece p : pieces) {
+            if(p.getType().equals("KING"))
+                kingCount++;
             p.drawPicker();
+        }
+        if(kingCount < 2) {
+            pieces.clear();
+            game.setScreen(new MainMenuScreen(game));
+        }
+        kingCount = 0;
 
     }
 
